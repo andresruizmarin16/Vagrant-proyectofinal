@@ -1,0 +1,27 @@
+- hosts: database  # Define el grupo de hosts (debe coincidir con el inventario)
+  become: yes      # Ejecuta las tareas con privilegios de superusuario
+  tasks:           # Lista de tareas a ejecutar
+    - name: Pull MySQL image
+      docker_image:
+        name: mysql
+        tag: latest
+        source: pull
+
+    - name: Run MySQL container
+      docker_container:
+        name: mysql
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: "rootpassword"
+          MYSQL_DATABASE: "mydb"
+          MYSQL_USER: "user"
+          MYSQL_PASSWORD: "password"
+        ports:
+          - "3306:3306"
+        state: started
+
+    - name: Allow MySQL traffic
+      ufw:
+        rule: allow
+        port: 3306
+        proto: tcp
